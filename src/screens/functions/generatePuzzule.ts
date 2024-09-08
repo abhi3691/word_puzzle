@@ -7,39 +7,43 @@ const model = genAI.getGenerativeModel({
   generationConfig: {
     responseMimeType: 'application/json',
     responseSchema: {
-      type: SchemaType.OBJECT,
-      properties: {
-        orginal: {type: SchemaType.STRING},
-      },
+      type: SchemaType.ARRAY,
+      items: {type: SchemaType.STRING},
     },
   },
 });
 
 export interface PuzzleProps {
-  orginal: string;
-  puzzle: string[];
+  orginal: string[];
+  puzzle: string[][];
 }
 const shuffleWord = (word: string) => {
   return word.split('').sort(() => Math.random() - 0.5);
 };
 
-export const generatePuzzule = async (): Promise<PuzzleProps | false> => {
-  let response: PuzzleProps | false = false;
+export const generatePuzzule = async (): Promise<PuzzleProps> => {
+  let response: PuzzleProps = {
+    orginal: [],
+    puzzle: [],
+  };
   let prompt =
-    'Generate a single random word suitable for a puzzle game, no other text.';
+    'Generate a 100 random word and word length maximum 7, for a puzzle game dont repeate words in this 100 and every time genrate new words dont repate previous generate';
   try {
     const result = await model.generateContent(prompt);
 
     // Parsing JSON from the AI's response
     const jsonResponse = JSON.parse(result.response.text());
     response = {
-      orginal: jsonResponse.orginal,
-      puzzle: shuffleWord(jsonResponse?.orginal), // assuming the puzzle is returned as an array of characters
+      orginal: jsonResponse,
+      puzzle: jsonResponse.map((value: string) => shuffleWord(value)), // assuming the puzzle is returned as an array of characters
     };
-
-    return response;
   } catch (error) {
     console.error('Error generating puzzle:', error);
-    return false;
+    response = {
+      orginal: [],
+      puzzle: [],
+    };
+    throw error;
   }
+  return response;
 };

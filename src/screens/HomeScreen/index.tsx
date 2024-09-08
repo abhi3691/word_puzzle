@@ -7,32 +7,30 @@ import colors from '../../assets/constants/colors';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import ResetButton from './molecules/button';
+import {useQuery} from '@tanstack/react-query';
 const HomeScreen = () => {
   const [puzzleData, setPuzzleData] = useState<string[]>([]);
-  const orginalWord = useRef('');
-  const [loading, setLoading] = useState(false);
-
-  const loadPuzzle = useCallback(async () => {
-    setLoading(true);
-    let res = await generatePuzzule();
-    if (res && typeof res !== 'boolean' && res) {
-      const newPuzzle: string[] = res?.puzzle;
-      if (newPuzzle.length) {
-        setPuzzleData(newPuzzle);
-      }
-      orginalWord.current = res.orginal;
-      setLoading(false);
-    }
+  const activeIndex = useRef(0);
+  const {
+    isLoading,
+    refetch,
+    data: puzzleQueryData,
+  } = useQuery({
+    queryKey: ['getWords'],
+    queryFn: generatePuzzule,
+  });
+  const newPuzzle = useCallback((v: string[]) => {
+    setPuzzleData(v);
   }, []);
 
   useLayoutEffect(() => {
-    loadPuzzle();
-  }, [loadPuzzle]);
-  console.log('orginalWord.current', orginalWord.current);
+    if (puzzleQueryData && puzzleQueryData.puzzle.length) {
+      newPuzzle(puzzleQueryData.puzzle[0]);
+    }
+  }, [newPuzzle, puzzleQueryData]);
 
-  const onDragEnd = (data: any) => {
-    setPuzzleData(data);
-    if (data.join('') === orginalWord.current) {
+  const onDragEnd = (e: any) => {
+    if (e.join('') === puzzleQueryData?.orginal[activeIndex.current]) {
       Alert.alert(
         'Success',
         'You solved the puzzle! Would you like to restart the game?',
@@ -44,7 +42,7 @@ const HomeScreen = () => {
           },
           {
             text: 'Yes',
-            onPress: () => loadPuzzle(), // Restart the game
+            onPress: () => newGame(),
           },
         ],
         {cancelable: false},
@@ -52,10 +50,24 @@ const HomeScreen = () => {
     }
   };
 
+  const newGame = () => {
+    console.log('activeIndex.current ', activeIndex.current);
+    if (
+      puzzleQueryData?.orginal.length &&
+      activeIndex.current === puzzleQueryData?.orginal.length - 1
+    ) {
+      refetch();
+    } else {
+      const totalPuzzles = puzzleQueryData?.puzzle?.length || 0;
+      activeIndex.current = (activeIndex.current + 1) % totalPuzzles; // Move to next puzzle and wrap around
+      newPuzzle(puzzleQueryData?.puzzle[activeIndex.current] ?? []); // Set the new puzzle data
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={colors.black} barStyle={'light-content'} />
-      {loading ? (
+      {isLoading ? (
         <ActivityIndicator color={colors.white} size={'large'} />
       ) : (
         <>
@@ -64,11 +76,11 @@ const HomeScreen = () => {
               data={puzzleData}
               renderItem={RenderItem}
               bounces={false}
-              keyExtractor={(v, index) => index.toString()}
+              keyExtractor={(_, index) => index.toString()}
               onDragEnd={({data}) => onDragEnd(data)}
             />
           </GestureHandlerRootView>
-          <ResetButton title="Restart Game" onPress={() => loadPuzzle()} />
+          <ResetButton title="New Game" onPress={() => newGame()} />
         </>
       )}
     </View>
