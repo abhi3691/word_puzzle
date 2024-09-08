@@ -1,5 +1,5 @@
 import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Alert, StatusBar, View} from 'react-native';
+import {ActivityIndicator, Alert, StatusBar, View, Text} from 'react-native';
 import {generatePuzzule} from '../functions/generatePuzzule';
 import RenderItem from './organization/RenderItem';
 import styles from './styles';
@@ -8,6 +8,12 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import ResetButton from './molecules/button';
 import {useQuery} from '@tanstack/react-query';
+import {
+  TourGuideZone,
+  TourGuideZoneByPosition,
+  useTourGuideController,
+} from 'rn-tourguide';
+
 const HomeScreen = () => {
   const [puzzleData, setPuzzleData] = useState<string[]>([]);
   const activeIndex = useRef(0);
@@ -19,6 +25,7 @@ const HomeScreen = () => {
     queryKey: ['getWords'],
     queryFn: generatePuzzule,
   });
+
   const newPuzzle = useCallback((v: string[]) => {
     setPuzzleData(v);
   }, []);
@@ -38,7 +45,7 @@ const HomeScreen = () => {
           {
             text: 'No',
             onPress: () => console.log('Game not restarted'),
-            style: 'cancel', // Style for "No"
+            style: 'cancel',
           },
           {
             text: 'Yes',
@@ -51,31 +58,51 @@ const HomeScreen = () => {
   };
 
   const newGame = () => {
-    console.log(
-      'activeIndex.current ',
-      activeIndex.current,
-      puzzleQueryData?.orginal.length,
-    );
     if (
       puzzleQueryData?.orginal.length &&
       activeIndex.current === puzzleQueryData?.orginal.length - 1
     ) {
       refetch();
-      activeIndex.current = 0;
     } else {
       const totalPuzzles = puzzleQueryData?.puzzle?.length || 0;
-      activeIndex.current = (activeIndex.current + 1) % totalPuzzles; // Move to next puzzle and wrap around
-      newPuzzle(puzzleQueryData?.puzzle[activeIndex.current] ?? []); // Set the new puzzle data
+      activeIndex.current = (activeIndex.current + 1) % totalPuzzles;
+      newPuzzle(puzzleQueryData?.puzzle[activeIndex.current] ?? []);
     }
   };
+
+  // Tour Guide Setup
+  const {canStart, start, eventEmitter} = useTourGuideController();
+
+  React.useEffect(() => {
+    if (canStart) {
+      start();
+    }
+  }, [canStart]);
+
+  const handleOnStart = () => console.log('Tour started');
+  const handleOnStop = () => console.log('Tour stopped');
+  const handleOnStepChange = () => console.log('Step changed');
+
+  React.useEffect(() => {
+    eventEmitter?.on('start', handleOnStart);
+    eventEmitter?.on('stop', handleOnStop);
+    eventEmitter?.on('stepChange', handleOnStepChange);
+
+    return () => {
+      eventEmitter?.off('start', handleOnStart);
+      eventEmitter?.off('stop', handleOnStop);
+      eventEmitter?.off('stepChange', handleOnStepChange);
+    };
+  }, [eventEmitter]);
 
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={colors.black} barStyle={'light-content'} />
+
       {isLoading ? (
         <ActivityIndicator color={colors.white} size={'large'} />
       ) : (
-        <>
+        <View>
           <GestureHandlerRootView>
             <DraggableFlatList
               data={puzzleData}
@@ -85,8 +112,23 @@ const HomeScreen = () => {
               onDragEnd={({data}) => onDragEnd(data)}
             />
           </GestureHandlerRootView>
-          <ResetButton title="New Game" onPress={() => newGame()} />
-        </>
+          <TourGuideZoneByPosition
+            zone={1}
+            shape={'circle'}
+            text="Drag these letters to solve the puzzle!"
+            isTourGuide
+            top={30}
+            left={50}
+            width={200}
+            height={50}
+          />
+          {/* Tour Guide for Reset Button */}
+          <TourGuideZone
+            zone={2}
+            text="click New  Game to  start with new the puzzle!">
+            <ResetButton title="New Game" onPress={() => newGame()} />
+          </TourGuideZone>
+        </View>
       )}
     </View>
   );
