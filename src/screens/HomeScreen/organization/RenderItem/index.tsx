@@ -5,7 +5,7 @@ import {
   RenderItemParams,
   ScaleDecorator,
 } from 'react-native-draggable-flatlist';
-import colors from '../../../../components/constants/colors';
+import colors from '../../../../assets/constants/colors';
 
 const RenderItem = ({item, drag, isActive}: RenderItemParams<string>) => {
   const borderColor = isActive ? colors.blue : colors.white;

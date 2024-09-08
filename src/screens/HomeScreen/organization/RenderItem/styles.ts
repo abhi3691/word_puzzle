@@ -1,6 +1,6 @@
 import {StyleSheet} from 'react-native';
-import ScreenRatio from '../../../../components/constants/ScreenRatio';
-import colors from '../../../../components/constants/colors';
+import ScreenRatio from '../../../../assets/constants/ScreenRatio';
+import colors from '../../../../assets/constants/colors';
 
 const styles = StyleSheet.create({
   letterContainer: {

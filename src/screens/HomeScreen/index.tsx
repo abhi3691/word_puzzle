@@ -3,7 +3,7 @@ import {ActivityIndicator, Alert, View} from 'react-native';
 import {generatePuzzule} from '../functions/generatePuzzule';
 import RenderItem from './organization/RenderItem';
 import styles from './styles';
-import colors from '../../components/constants/colors';
+import colors from '../../assets/constants/colors';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import ResetButton from './molecules/button';
@@ -62,6 +62,7 @@ const HomeScreen = () => {
             <DraggableFlatList
               data={puzzleData}
               renderItem={RenderItem}
+              bounces={false}
               keyExtractor={(v, index) => index.toString()}
               onDragEnd={({data}) => onDragEnd(data)}
             />
