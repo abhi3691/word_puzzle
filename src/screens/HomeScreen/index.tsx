@@ -51,12 +51,17 @@ const HomeScreen = () => {
   };
 
   const newGame = () => {
-    console.log('activeIndex.current ', activeIndex.current);
+    console.log(
+      'activeIndex.current ',
+      activeIndex.current,
+      puzzleQueryData?.orginal.length,
+    );
     if (
       puzzleQueryData?.orginal.length &&
       activeIndex.current === puzzleQueryData?.orginal.length - 1
     ) {
       refetch();
+      activeIndex.current = 0;
     } else {
       const totalPuzzles = puzzleQueryData?.puzzle?.length || 0;
       activeIndex.current = (activeIndex.current + 1) % totalPuzzles; // Move to next puzzle and wrap around

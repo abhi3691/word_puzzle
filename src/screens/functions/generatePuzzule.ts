@@ -27,7 +27,7 @@ export const generatePuzzule = async (): Promise<PuzzleProps> => {
     puzzle: [],
   };
   let prompt =
-    'Generate a 100 random word and word length maximum 7, for a puzzle game dont repeate words in this 100 and every time genrate new words dont repate previous generate';
+    'Generate a 10 random words and each word  maximum length must be less than 7, for a puzzle game dont repeate words in this 10 and every time genrate new words dont repate previous generate';
   try {
     const result = await model.generateContent(prompt);
 
