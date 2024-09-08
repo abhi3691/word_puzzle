@@ -1,5 +1,5 @@
 import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Alert, View} from 'react-native';
+import {ActivityIndicator, Alert, StatusBar, View} from 'react-native';
 import {generatePuzzule} from '../functions/generatePuzzule';
 import RenderItem from './organization/RenderItem';
 import styles from './styles';
@@ -54,6 +54,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={colors.black} barStyle={'light-content'} />
       {loading ? (
         <ActivityIndicator color={colors.white} size={'large'} />
       ) : (
