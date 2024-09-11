@@ -14,33 +14,45 @@ const model = genAI.getGenerativeModel({
 });
 
 export interface PuzzleProps {
-  orginal: string[];
+  original: string[];
   puzzle: string[][];
 }
-const shuffleWord = (word: string) => {
-  return word.split('').sort(() => Math.random() - 0.5);
+
+const shuffleWord = (word: string): string[] => {
+  let shuffled = word.split('');
+
+  // Shuffle the word until it's different from the original
+  do {
+    shuffled = shuffled.sort(() => Math.random() - 0.5);
+  } while (shuffled.join('') === word);
+
+  return shuffled;
 };
 
-export const generatePuzzule = async (): Promise<PuzzleProps> => {
+export type difficultyType = 'easy' | 'medium' | 'hard';
+export const generatePuzzle = async (
+  difficulty: difficultyType = 'medium',
+): Promise<PuzzleProps> => {
   let response: PuzzleProps = {
-    orginal: [],
+    original: [],
     puzzle: [],
   };
-  let prompt =
-    'Generate a 10 random words and each word  maximum length must be less than 7, for a puzzle game dont repeate words in this 10 and every time genrate new words dont repate previous generate';
+
+  let prompt = `Generate a word puzzle with a difficulty level of ${difficulty}. Words should have a maximum of 8 letters. Provide the output as an array of original words only, like ["word1", "word2", "word3", ...]. Limit the number of words to 10 per page, and include pagination.`;
+
   try {
     const result = await model.generateContent(prompt);
-
     // Parsing JSON from the AI's response
     const jsonResponse = JSON.parse(result.response.text());
+
     response = {
-      orginal: jsonResponse,
-      puzzle: jsonResponse.map((value: string) => shuffleWord(value)), // assuming the puzzle is returned as an array of characters
+      original: jsonResponse,
+      puzzle: jsonResponse.map((value: string) => shuffleWord(value)),
     };
   } catch (error) {
     console.error('Error generating puzzle:', error);
     response = {
-      orginal: [],
+      original: [],
       puzzle: [],
     };
     throw error;

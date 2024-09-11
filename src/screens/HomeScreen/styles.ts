@@ -8,6 +8,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#101010',
     padding: 30,
   },
+  item: {
+    width: '100%',
+    height: '100%',
+  },
 });
 
 export default styles;

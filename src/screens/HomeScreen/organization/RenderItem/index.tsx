@@ -5,16 +5,14 @@ import {
   RenderItemParams,
   ScaleDecorator,
 } from 'react-native-draggable-flatlist';
-import colors from '../../../../assets/constants/colors';
 
 const RenderItem = ({item, drag, isActive}: RenderItemParams<string>) => {
-  const borderColor = isActive ? colors.blue : colors.white;
   return (
-    <ScaleDecorator activeScale={0.8}>
+    <ScaleDecorator activeScale={1.1}>
       <TouchableOpacity
         onLongPress={drag}
         disabled={isActive}
-        style={[styles.letterContainer, {borderColor: borderColor}]}>
+        style={[styles.letterContainer, isActive && styles.activeStyle]}>
         <Text style={styles.letter}>{item}</Text>
       </TouchableOpacity>
     </ScaleDecorator>

@@ -3,7 +3,7 @@ import {SafeAreaView} from 'react-native';
 import React from 'react';
 import Routes from './src/routes';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import colors from './src/assets/constants/colors';
+import colors from './src/constants/colors';
 import {
   TourGuideProvider, // Main provider
 } from 'rn-tourguide';

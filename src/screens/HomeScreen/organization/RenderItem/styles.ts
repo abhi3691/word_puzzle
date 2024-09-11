@@ -1,18 +1,21 @@
 import {StyleSheet} from 'react-native';
-import ScreenRatio from '../../../../assets/constants/ScreenRatio';
-import colors from '../../../../assets/constants/colors';
+import colors from '../../../../constants/colors';
 
 const styles = StyleSheet.create({
   letterContainer: {
-    width: ScreenRatio.width * 0.8,
-    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
     backgroundColor: colors.green,
     borderWidth: 1,
     borderRadius: 8,
-    padding: 10,
+    padding: 15,
+  },
+  activeStyle: {
+    elevation: 3,
+    shadowColor: colors.green,
+    shadowRadius: 10,
+    shadowOpacity: 1,
   },
   letter: {
     fontSize: 24,
